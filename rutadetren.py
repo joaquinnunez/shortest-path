@@ -14,7 +14,6 @@ args = parser.parse_args()
 
 inf = float('inf')
 dist = {}
-prev = {}
 neighbours = defaultdict(dict)
 
 with open(args.file, 'r') as csvfile:
@@ -22,12 +21,9 @@ with open(args.file, 'r') as csvfile:
   for station1, station2, distance in reader:
     dist[station1] = inf
     dist[station2] = inf
-    prev[station1] = None
-    prev[station2] = None
-    neighbours[station1][station2] = int(distance)
-    neighbours[station2][station1] = int(distance) # bidirectional
-
-unvisited = set(dist.keys())
+    d = int(distance)
+    neighbours[station1][station2] = d
+    neighbours[station2][station1] = d # bidirectional
 
 # validate start and destination are present
 if not args.start in dist:
@@ -36,8 +32,8 @@ if not args.start in dist:
 if not args.destination in dist:
     sys.exit('Destination {} is not present'.format(args.destination))
 
+unvisited = set(dist.keys())
 dist[args.start] = 0
-
 while unvisited: # not empty
   node = min(unvisited, key=lambda uv: dist[uv]) # use a better data-structure
   unvisited.remove(node)
@@ -46,6 +42,5 @@ while unvisited: # not empty
   for end, cost in neighbours[node].items():
     if dist[node] + cost < dist[end]:
       dist[end] = dist[node] + cost
-      prev[end] = node
 
 print('The shortest path from {} to {} is {}'.format(args.start, args.destination, dist[args.destination]))
