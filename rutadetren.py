@@ -15,7 +15,7 @@ args = parser.parse_args()
 inf = float('inf')
 dist = {}
 prev = {}
-neighbours = defaultdict(list)
+neighbours = defaultdict(dict)
 
 with open(args.file, 'r') as csvfile:
   reader = csv.reader(csvfile)
@@ -24,8 +24,8 @@ with open(args.file, 'r') as csvfile:
     dist[station2] = inf
     prev[station1] = None
     prev[station2] = None
-    neighbours[station1].append((station2, int(distance)))
-    neighbours[station2].append((station1, int(distance))) # bidirectional
+    neighbours[station1][station2] = int(distance)
+    neighbours[station2][station1] = int(distance) # bidirectional
 
 unvisited = set(dist.keys())
 
@@ -43,7 +43,7 @@ while unvisited: # not empty
   unvisited.remove(node)
   if args.destination == node or dist[node] == inf: # unreachable nodes or destination
     break
-  for end, cost in neighbours[node]:
+  for end, cost in neighbours[node].items():
     if dist[node] + cost < dist[end]:
       dist[end] = dist[node] + cost
       prev[end] = node
